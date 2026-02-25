@@ -1,4 +1,121 @@
-# HFT mini engine (C++)
+# HFT Mini Engine
+
+A minimal low-latency trading engine skeleton in modern C++.
+
+This project demonstrates a simplified execution pipeline typical for
+high-frequency / market-making environments, focusing on performance,
+determinism, and system-level thinking rather than strategy complexity.
+
+---
+
+## Overview
+
+The engine models a basic trading loop:
+
+Market Data → Strategy → Risk → Order Gateway → Acknowledgement
+
+The goal is to showcase:
+
+- Lock-free SPSC communication
+- No dynamic allocations in hot paths
+- Basic order lifecycle state machine
+- Inventory and risk checks
+- Latency measurement (p50 / p99)
+- Thread affinity and cache awareness
+
+This is not a production trading system.
+It is an execution-focused performance exercise.
+
+---
+
+## Architecture
+
+Threads:
+
+1. Market Data Thread  
+   Generates simulated tick events.
+
+2. Strategy Thread  
+   Consumes market data and produces order commands.
+
+3. Gateway Thread  
+   Simulates order sending and exchange acknowledgements.
+
+Communication:
+
+- Lock-free SPSC ring buffers
+- Preallocated object pools
+- No heap allocations in the critical path
+
+---
+
+## Key Components
+
+### Infrastructure
+
+- `spsc_ring.hpp` – single-producer single-consumer lock-free queue
+- `object_pool.hpp` – fixed-size memory pool
+- `cpu_affinity.hpp` – thread pinning utilities
+- `metrics.hpp` – latency and throughput counters
+
+### Market
+
+- `md_simulator.hpp` – deterministic tick generator
+
+### Strategy
+
+- `simple_mm.hpp` – minimal market-making example
+- Spread-based quoting logic
+- Inventory tracking
+
+### Risk
+
+- Position limits
+- Simple throttling
+- Basic exposure checks
+
+### Execution
+
+- Order struct and lifecycle state machine
+- Gateway stub with simulated ACK/FILL events
+- Rate limiter (token bucket)
+
+---
+
+## Build
+
+```bash
+mkdir build
+cd build
+cmake ..
+make
+```
+## Run
+```bash
+./engine
+```
+## Benchmarks:
+```bash
+./bench_spsc
+./bench_latency_pipeline
+./bench_false_sharing
+```
+
+## Performance Focus
+
+The engine emphasizes:
+
+- Deterministic latency behavior
+- Elimination of unnecessary allocations
+- Cache line alignment (`alignas(64)`)
+- Minimal locking
+- Clear execution flow
+
+Latency is measured between:
+
+Tick received → Order generated
+
+With distribution reporting (p50 / p99).
 
 ## 📁 Repo layout
 ```bash
@@ -65,3 +182,4 @@ hft-mini-engine/
    ├─ performance.md               # what you measured, results
    └─ interview_notes.md           # short talking points
 ```
+  
