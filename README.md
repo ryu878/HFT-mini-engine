@@ -1,5 +1,6 @@
 # HFT mini engine (C++)
 
+## 📁 Repo layout
 ```bash
 hft-mini-engine/
 ├─ README.md
